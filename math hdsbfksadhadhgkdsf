@@ -3,13 +3,13 @@ LPH_NO_VIRTUALIZE = function(Function)
 end
 local Services = loadstring(
 	game:HttpGet(
-		"https://raw.githubusercontent.com/cftg87huibijhju87gtcfrd65ezrees54exdc/dfcghbhhuivytfdexr4s5zweexrdcfjg/refs/heads/main/dxddxxxdgfgfxghbjklnpj",
+		"https://raw.githubusercontent.com/cftg87huibijhju87gtcfrd65ezrees54exdc/dfcghbhhuivytfdexr4s5zweexrdcfjg/refs/heads/main/serv%20yfvghdfi%3Bhgusvkjblhk",
 		true
 	)
 )()
 local Character = loadstring(
 	game:HttpGet(
-		"https://raw.githubusercontent.com/cftg87huibijhju87gtcfrd65ezrees54exdc/dfcghbhhuivytfdexr4s5zweexrdcfjg/refs/heads/main/xdred65drxfctgyvhyv",
+		"https://raw.githubusercontent.com/cftg87huibijhju87gtcfrd65ezrees54exdc/dfcghbhhuivytfdexr4s5zweexrdcfjg/refs/heads/main/char%20ghkglhdfgkvbg",
 		true
 	)
 )()
