@@ -1,0 +1,45 @@
+LPH_JIT_MAX = function(Function)
+    return Function
+end
+return LPH_JIT_MAX(function()
+    return {
+        Normalise = function(Self, String)
+            return string.gsub(string.gsub(String, " ", ""), "\n", "")
+        end,
+        FormatTimeOfDay = function(Self, ClockTime)
+            local hours = math.floor(ClockTime)
+            local minutes = math.floor((ClockTime % 1) * 60)
+            --
+            return string.format("%02d:%02d:00", hours, minutes)
+        end,
+        Escape = function(Self, String)
+            local Escaped = String:gsub("[\"'\\\n\r\t\b\f]", {
+                ['"'] = '\\"',
+                ["'"] = "\\'",
+                ["\\"] = "\\\\",
+                ["\n"] = "\\n",
+                ["\r"] = "\\r",
+                ["\t"] = "\\t",
+                ["\b"] = "\\b",
+                ["\f"] = "\\f",
+            })
+            --
+            local Cleaned = Escaped
+                :gsub("%%(%x%x)", {
+                    ["20"] = " ",
+                    ["2F"] = "/",
+                    ["3A"] = ":",
+                    ["3D"] = "=",
+                    ["2E"] = ".",
+                    ["5F"] = "_",
+                    ["2B"] = "+",
+                    ["2D"] = "-",
+                })
+                :gsub("%%23", "#")
+                :gsub("%%2B", "+")
+                :gsub("%%2D", "-")
+
+            return Cleaned
+        end,
+    }
+end)()
