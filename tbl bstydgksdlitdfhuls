@@ -1,0 +1,151 @@
+LPH_NO_VIRTUALIZE = function(Function)
+    return Function
+end
+return LPH_NO_VIRTUALIZE(function()
+    return {
+        Property = function(Self, Properties, ...)
+            local Indexes = {}
+            --
+            for Index, Value in next, { ... } do
+                Indexes[string.lower(Value)] = true
+            end
+            --
+            for Index2, Value2 in next, Properties do
+                if Indexes[string.lower(Index2)] then
+                    return Value2
+                end
+            end
+        end,
+        --
+        State = function(Self, State, Value)
+            if typeof(State) == "table" then
+                return (State[Value] or false)
+            else
+                return (State == Value)
+            end
+            --
+            return false
+        end,
+        --
+        Modify = function(Self, State, Value, Min, Max)
+            if typeof(State) == "table" then
+                local Current = 0
+                --
+                for Index, Value2 in next, State do
+                    if Value2 then
+                        Current = (Current + 1)
+                    end
+                end
+                --
+                if (State[Value] and ((Current - 1) >= Min)) or (not State[Value] and ((Current + 1) <= Max)) then
+                    State[Value] = ((not State[Value]) or nil)
+                end
+                --
+                return State
+            else
+                return Value
+            end
+            --
+            return 1
+        end,
+        --
+        Stringify = function(Self, Value, Array, ReturnAsArray)
+            if typeof(Value) == "table" then
+                local Strings = {}
+                --
+                for Index, Value2 in next, Array do
+                    if Value[Index] then
+                        Strings[#Strings + 1] = Value2
+                    end
+                end
+                --
+                if ReturnAsArray then
+                    return Strings
+                else
+                    local String = ""
+                    for Index, Value2 in next, Strings do
+                        String = String .. Value2 .. (Index == #Strings and "" or ", ")
+                    end
+                    return String
+                end
+            else
+                return Array[Value]
+            end
+        end,
+        --
+        Tableify = function(Self, Value, Array)
+            local Index
+            --
+            for Index2, Value2 in next, Array do
+                if Value2 == Value then
+                    Index = Index2
+                    break
+                end
+            end
+            --
+            return Index
+        end,
+        --
+        Count = function(Self, Array)
+            local Count = 0
+            --
+            for Index, Value in next, Array do
+                Count += 1
+            end
+            --
+            return Count
+        end,
+        --
+        Last = function(Self, Array)
+            local Last = 0
+            --
+            for Index, Value in next, Array do
+                Last = Value
+            end
+            --
+            return Last
+        end,
+        --
+        Sort = function(Self, Array, Order)
+            local Order = (Order or "Alphabetical")
+            --
+            if typeof(Array) == "table" and Order == "Alphabetical" then
+                table.sort(Array, function(Previous, Next)
+                    return (string.byte(Previous) < string.byte(Next))
+                end)
+            end
+            --
+            return Table
+        end,
+        --
+        Dump = function(Self, Array, Indent)
+            local IndentStr = string.rep("  ", (Indent or 1))
+            --
+            for Key, Value in pairs(Array) do
+                if typeof(Value) == "table" then
+                    print(IndentStr .. "[" .. tostring(Key) .. "] => TABLE {")
+                    --
+                    self:Dump(Value, Indent + 1)
+                    --
+                    print(IndentStr .. "}")
+                else
+                    print(IndentStr .. "[" .. tostring(Key) .. "] => " .. tostring(Value))
+                end
+            end
+        end,
+        --
+        Deepcopy = function(Self, Array)
+            local Copy = {}
+            --
+            for Index, Value in pairs(Array) do
+                if type(Value) == "table" then
+                    Copy[Index] = Self:Deepcopy(Value)
+                else
+                    Copy[Index] = Value
+                end
+            end
+            --
+            return Copy
+        end,
+    }
+end)()
