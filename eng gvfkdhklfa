@@ -2,9 +2,9 @@ LPH_JIT_MAX = function(Function)
     return Function
 end
 --
-local Services = loadstring(game:HttpGet('https://raw.githubusercontent.com/cftg87huibijhju87gtcfrd65ezrees54exdc/dfcghbhhuivytfdexr4s5zweexrdcfjg/refs/heads/main/dxddxxxdgfgfxghbjklnpj', true))()
+local Services = loadstring(game:HttpGet('https://raw.githubusercontent.com/cftg87huibijhju87gtcfrd65ezrees54exdc/dfcghbhhuivytfdexr4s5zweexrdcfjg/refs/heads/main/serv%20yfvghdfi%3Bhgusvkjblhk', true))()
 --
-local Character = loadstring(game:HttpGet('https://raw.githubusercontent.com/cftg87huibijhju87gtcfrd65ezrees54exdc/dfcghbhhuivytfdexr4s5zweexrdcfjg/refs/heads/main/xdred65drxfctgyvhyv', true))()
+local Character = loadstring(game:HttpGet('https://raw.githubusercontent.com/cftg87huibijhju87gtcfrd65ezrees54exdc/dfcghbhhuivytfdexr4s5zweexrdcfjg/refs/heads/main/char%20ghkglhdfgkvbg', true))()
 --
 local CurrentCamera = Services.Workspace.CurrentCamera
 local Client = Services.Players.LocalPlayer
