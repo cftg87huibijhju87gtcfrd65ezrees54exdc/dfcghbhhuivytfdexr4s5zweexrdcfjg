@@ -1,0 +1,137 @@
+LPH_JIT_MAX = function(Function)
+    return Function
+end
+--
+local Services = loadstring(game:HttpGet('https://raw.githubusercontent.com/cftg87huibijhju87gtcfrd65ezrees54exdc/dfcghbhhuivytfdexr4s5zweexrdcfjg/refs/heads/main/dxddxxxdgfgfxghbjklnpj', true))()
+--
+local Character = loadstring(game:HttpGet('https://raw.githubusercontent.com/cftg87huibijhju87gtcfrd65ezrees54exdc/dfcghbhhuivytfdexr4s5zweexrdcfjg/refs/heads/main/xdred65drxfctgyvhyv', true))()
+--
+local CurrentCamera = Services.Workspace.CurrentCamera
+local Client = Services.Players.LocalPlayer
+--
+local RayParams = RaycastParams.new()
+do
+    RayParams.FilterType = Enum.RaycastFilterType.Blacklist
+    RayParams.FilterDescendantsInstances = { CurrentCamera, Client.Character }
+    RayParams.IgnoreWater = true
+end
+--
+return LPH_JIT_MAX(function()
+    return {
+        Connections = {},
+        Screens = {},
+        Instances = {},
+        --
+        Create = function(Self, Type, Properties, Ignore)
+            local Object = Instance.new(Type)
+            --
+            if Type == "ScreenGui" and Ignore then
+                Self.Screens[Object] = true
+            end
+            --
+            Self:Update(Object, Properties)
+            --
+            Self.Instances[Object] = true
+            --
+            return Object
+        end,
+        --
+        Update = function(Self, Object, Properties)
+            for Property, Value in next, Properties do
+                Object[Property] = Value
+            end
+        end,
+        --
+        Connect = function(Self, Name, ...)
+            local Table = {
+                Connection = Name:Connect(...),
+            }
+            --
+            function Table:Disconnect()
+                Self.Connections[Table] = nil
+                --
+                Table.Connection:Disconnect()
+                --
+                Table.Connection = nil
+                Table.Disconnect = nil
+                Table = nil
+            end
+            --
+            Self.Connections[Table] = true
+            --
+            return Table
+        end,
+        --
+        Call = function(Self, Func, ...)
+            if Func then
+                local Passed, Statement = pcall(Func, ...)
+                --
+                if not Passed then
+                    print(string.format("Error: %s", Statement))
+                    print(debug.traceback())
+                end
+                --
+                return Passed, Statement
+            end
+        end,
+        --
+        Thread = function(Self, Func, ...)
+            coroutine.wrap(Func)(...)
+        end,
+        --
+        Location = function(Self)
+            local Location = Services.UserInputService:GetMouseLocation()
+            return Vector2.new(Location.X, Location.Y)
+        end,
+        --
+        PassThrough = function(Self, From, Target, RaycastParams_, IgnoreTable)
+            RaycastParams_.FilterDescendantsInstances = IgnoreTable
+            --
+            local Result = Services.Workspace:Raycast(From, (Target.Position - From).unit * 10000, RaycastParams_)
+            if Result then
+                local Instance = Result.Instance
+                if game.IsDescendantOf(Instance, Target.Parent) then
+                    return true
+                elseif Instance.CanCollide == false or Instance.Transparency == 1 then
+                    if Instance.Name ~= "Head" and Instance.Name ~= "HumanoidRootPart" then
+                        table.insert(IgnoreTable, Instance)
+                        return Self:PassThrough(Result.Position, Target, RaycastParams_, IgnoreTable)
+                    end
+                end
+            end
+        end,
+        --
+        CheckVisible = function(Self, Player, Target, FromHead)
+            local Model = Character:GetCharacter("Player", Player)
+            --
+            if Model then
+                local Head = game.FindFirstChild(Model, "Head")
+                if Head then
+                    local RaycastParams_ = RaycastParams.new()
+                    RaycastParams_.FilterType = Enum.RaycastFilterType.Blacklist
+                    local IgnoreTable = { CurrentCamera, Model }
+                    RaycastParams_.FilterDescendantsInstances = IgnoreTable
+                    RaycastParams_.IgnoreWater = true
+                    --
+                    local From = FromHead and Head.Position or CurrentCamera.CFrame.p
+                    local Result =
+                        Services.Workspace:Raycast(From, (Target.Position - From).unit * 10000, RaycastParams_)
+                    --
+                    if Result then
+                        local Instance = Result.Instance
+                        if game.IsDescendantOf(Instance, Target.Parent) then
+                            return true
+                        elseif Instance.CanCollide == false or Instance.Transparency == 1 then
+                            if Instance.Name ~= "Head" and Instance.Name ~= "HumanoidRootPart" then
+                                table.insert(IgnoreTable, Instance)
+                                return Self:PassThrough(Result.Position, Target, RaycastParams_, IgnoreTable)
+                            end
+                        end
+                    end
+                end
+            end
+            --
+            return false
+        end,
+    }
+end)()
