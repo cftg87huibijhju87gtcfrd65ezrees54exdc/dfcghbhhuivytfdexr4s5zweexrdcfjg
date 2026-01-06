@@ -1,0 +1,160 @@
+LPH_NO_VIRTUALIZE = function(Function)
+	return Function
+end
+local Services = loadstring(
+	game:HttpGet(
+		"https://raw.githubusercontent.com/cftg87huibijhju87gtcfrd65ezrees54exdc/dfcghbhhuivytfdexr4s5zweexrdcfjg/refs/heads/main/dxddxxxdgfgfxghbjklnpj",
+		true
+	)
+)()
+local Character = loadstring(
+	game:HttpGet(
+		"https://raw.githubusercontent.com/cftg87huibijhju87gtcfrd65ezrees54exdc/dfcghbhhuivytfdexr4s5zweexrdcfjg/refs/heads/main/xdred65drxfctgyvhyv",
+		true
+	)
+)()
+local CurrentCamera = Services.Workspace.CurrentCamera
+--
+return LPH_NO_VIRTUALIZE(function()
+	return {
+		Over = function(Self, Location, Position, Size)
+			return (
+				(Location.X >= Position.X)
+				and (Location.X <= (Position.X + Size.X))
+				and (Location.Y >= Position.Y)
+				and (Location.Y <= (Position.Y + Size.Y))
+			)
+		end,
+		--
+		Percentile = function(Self, Value, Minimum, Maximum)
+			return ((Maximum - Value) / (Maximum - Minimum))
+		end,
+		--
+		Normalise = function(Self, Value, Decimals, Minimum, Maximum)
+			local Rounded = (Decimals ~= 1 and (math.floor(Value * Decimals) / Decimals) or math.floor(Value))
+			return math.clamp(Rounded, Minimum, Maximum)
+		end,
+		--
+		Value = function(Self, Axis, Lowest, Highest)
+			return (math.clamp(Axis - Lowest, 0, Highest) / Highest)
+		end,
+		--
+		Interpolate = function(Self, Axis, Lowest, Highest, Minimum, Maximum)
+			return (Minimum + (Maximum - Minimum) * Self:Value(Axis, Lowest, Highest))
+		end,
+		--
+		RoundVector = function(Self, Vector)
+			return Vector2.new(math.floor(Vector.X), math.floor(Vector.Y))
+		end,
+		--
+		RotateLine = function(Self, Object, Thickness, From, To)
+			local X1, Y1, X2, Y2 = From.X, From.Y, To.X, To.Y
+			--
+			local CenterX = (X1 + X2) / 2
+			local CenterY = (Y1 + Y2) / 2
+			--
+			local DeltaX = math.abs(X1 - X2) ^ 2
+			local DeltaY = math.abs(Y1 - Y2) ^ 2
+			--
+			local Distance = math.sqrt(DeltaX + DeltaY)
+			local Rotation = math.deg(math.atan2(Y1 - Y2, X1 - X2))
+			--
+			Object.AnchorPoint = Vector2.new(0.5, 0.5)
+			Object.Position = UDim2.fromOffset(CenterX, CenterY)
+			Object.Size = UDim2.fromOffset(Distance, Thickness)
+			Object.Rotation = Rotation
+		end,
+		--
+		GetBoundingBox = function(Self, RootCFrame, RootPart, BodyParts, Type)
+			if BodyParts and Type == "Dynamic" then
+				local BoundingBox = { Character:GetBoundingBox(RootCFrame, BodyParts) }
+				local Width = (CurrentCamera.CFrame - CurrentCamera.CFrame.Position)
+					* Vector3.new((math.clamp(BoundingBox[2].X, 1, 10) + 0.5) / 2, 0, 0)
+				local Height = (CurrentCamera.CFrame - CurrentCamera.CFrame.Position)
+					* Vector3.new(0, (math.clamp(BoundingBox[2].Y, 1, 10) + 0.5) / 2, 0)
+				local Middle, Onscreen = CurrentCamera:WorldToViewportPoint(BoundingBox[1].Position)
+				Width = math.abs(
+					CurrentCamera:WorldToViewportPoint(BoundingBox[1].Position + Width).X
+						- CurrentCamera:WorldToViewportPoint(BoundingBox[1].Position - Width).X
+				)
+				Height = math.abs(
+					CurrentCamera:WorldToViewportPoint(BoundingBox[1].Position + Height).Y
+						- CurrentCamera:WorldToViewportPoint(BoundingBox[1].Position - Height).Y
+				)
+				--
+				local BoxSize = Self:RoundVector(Vector2.new(Width, Height))
+				local BoxPosition = Self:RoundVector(Vector2.new(Middle.X, Middle.Y) - (BoxSize / 2))
+				--
+				return BoxSize, BoxPosition, Onscreen
+			elseif Type == "Static" then
+				local RootPosition, Onscreen = CurrentCamera:WorldToViewportPoint(RootCFrame.p)
+				local ScaleFactor = 1 / (RootPosition.Z * math.tan(math.rad(CurrentCamera.FieldOfView / 2)) * 2) * 1000
+				local Width, Height = 4 * ScaleFactor, 6.5 * ScaleFactor
+				local BottomOffset = 4
+				local LeftOffset = 2
+				--
+				Width *= CurrentCamera.ViewportSize.X / 1920
+				Height *= CurrentCamera.ViewportSize.Y / 1080
+				--
+				local BoxSize = Self:RoundVector(Vector2.new(math.max(Width, 6), math.max(Height, 10)))
+				local BoxPosition =
+					Self:RoundVector(Vector2.new(RootPosition.X - Width / 2, RootPosition.Y - Height / 2))
+				--
+				return BoxSize, BoxPosition, Onscreen
+			elseif Type == "Surround" and RootPart then
+				local Dimensions = Character:GetBoundingVectors(RootPart)
+				local Y_Minimal, Y_Maximal = CurrentCamera.ViewportSize.X, 0
+				local X_Minimal, X_Maximal = CurrentCamera.ViewportSize.X, 0
+				local Onscreen = false
+				--
+				for _, CF in pairs(Dimensions) do
+					local Vector, _ = CurrentCamera:WorldToViewportPoint(CF.Position)
+					local X, Y = Vector.X, Vector.Y
+					Onscreen = _
+					--
+					if X < X_Minimal then
+						X_Minimal = X
+					end
+					if X > X_Maximal then
+						X_Maximal = X
+					end
+					if Y < Y_Minimal then
+						Y_Minimal = Y
+					end
+					if Y > Y_Maximal then
+						Y_Maximal = Y
+					end
+				end
+				--
+				local BoxSize = Self:RoundVector(Vector2.new(X_Minimal - X_Maximal, Y_Minimal - Y_Maximal))
+				local BoxPosition =
+					Self:RoundVector(Vector2.new(X_Maximal + BoxSize.X / X_Minimal, Y_Maximal + BoxSize.Y / Y_Minimal))
+				--
+				return BoxSize, BoxPosition, Onscreen
+			end
+			--
+			return nil, nil, nil
+		end,
+		--
+		AngleEdge = function(Self, Angle, Inset)
+			local ScreenSize = Services.Workspace.CurrentCamera.ViewportSize
+			local Sine = math.sin(Angle)
+			local Cosine = math.cos(Angle)
+			local Slope = (Sine / Cosine)
+			local EdgeX = ScreenSize.X - Inset
+			local EdgeY = ScreenSize.Y - Inset
+			--
+			if Sine < 0 then
+				EdgeY = Inset
+			end
+			if Cosine < 0 then
+				EdgeX = Inset
+			end
+			--
+			local Height = (Slope * EdgeX) + (ScreenSize.y / 2) - Slope * (ScreenSize.x / 2)
+			--
+			return (Height > 0 and Height < ScreenSize.Y - Inset) and Vector2.new(EdgeX, Height)
+				or Vector2.new((EdgeY - ScreenSize.Y / 2 + Slope * (ScreenSize.X / 2)) / Slope, EdgeY)
+		end,
+	}
+end)()
