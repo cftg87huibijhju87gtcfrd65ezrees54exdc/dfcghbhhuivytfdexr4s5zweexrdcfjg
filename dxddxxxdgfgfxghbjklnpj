@@ -1,0 +1,11 @@
+local Cache = {}
+--
+return setmetatable({}, {
+    __index = function(_, Service)
+        if not Cache[Service] then
+            Cache[Service] = cloneref(game:GetService(Service))
+        end
+        --
+        return Cache[Service]
+    end,
+})
