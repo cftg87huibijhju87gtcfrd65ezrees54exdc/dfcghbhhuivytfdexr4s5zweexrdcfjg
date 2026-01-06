@@ -1,0 +1,147 @@
+LPH_NO_VIRTUALIZE = function(Function)
+    return Function
+end
+return LPH_NO_VIRTUALIZE(function()
+	return {
+		PartSizes = {
+			["Head"] = Vector3.new(2, 1, 1),
+			["Torso"] = Vector3.new(2, 2, 1),
+			["Left Arm"] = Vector3.new(1, 2, 1),
+			["Right Arm"] = Vector3.new(1, 2, 1),
+			["Left Leg"] = Vector3.new(1, 2, 1),
+			["Right Leg"] = Vector3.new(1, 2, 1),
+		},
+        ItemsModule = require(game:GetService("ReplicatedStorage").Modules.Items);
+        IconsCache = {};
+		--
+		GetCharacter = function(Self, Type, Player)
+			return Player.Character
+		end,
+		--
+		GetHumanoid = function(Self, Type, Player, Character)
+			return game.FindFirstChildOfClass(Character, "Humanoid")
+		end,
+		--
+		GetRootPart = function(Self, Type, Player, Character, Humanoid)
+			return game.FindFirstChild(Character, "HumanoidRootPart")
+		end,
+		--
+		GetHealth = function(Self, Type, Player, Character, Humanoid)
+			if Humanoid then
+				return math.floor(Humanoid.Health), math.floor(Humanoid.MaxHealth)
+			end
+			--
+			return 100, 100
+		end,
+		--
+		Alive = function(Self, Type, Player, Character, Humanoid)
+			local Health, MaxHealth = Self:GetHealth(Type, Player, Character, Humanoid)
+			--
+			return (Health > 0)
+		end,
+		--
+		GetTeam = function(Self, Type, Player)
+			return Player.Team
+		end,
+		--
+		GetWeapon = function(name)
+			if IconsCache[name] then
+				return IconsCache[name]
+			end
+			for id, item in next, ItemsModule do
+				if item.Name == name then
+					local image
+					if type(item.Image) == "table" then
+						image = item.Image.Default
+					else
+						image = item.Image
+					end
+					IconsCache[id] = image
+					return image
+				end
+			end
+			return false
+		end,
+		--
+		GetParent = function(Self, Player)
+			return Player.Parent
+		end,
+		--
+		ValidatePlayer = function(Self, Type, Player)
+			local Model = Self:GetCharacter(Type, Player)
+			local RootPart = (Model and Self:GetRootPart(Type, Player, Model))
+			local Humanoid = (Model and Self:GetHumanoid(Type, Player, Model))
+			--
+			return Model, RootPart, Humanoid
+		end,
+		--
+		GetBodyParts = function(Self, Character, RootPart, Indexes, Hitboxes)
+			local Parts = {}
+			local Hitboxes = Hitboxes or { "Head", "Torso", "Arms", "Legs" }
+			--
+			if Character then
+				for Index, Part in pairs(game.GetChildren(Character)) do
+					if Part:IsA("BasePart") and Part ~= RootPart then
+						local LoweredPart = string.lower(Part.Name)
+						if table.find(Hitboxes, "Head") and string.find(LoweredPart, "head") then
+							Parts[Indexes and Part.Name or #Parts + 1] = Part
+						elseif table.find(Hitboxes, "Torso") and string.find(LoweredPart, "torso") then
+							Parts[Indexes and Part.Name or #Parts + 1] = Part
+						elseif table.find(Hitboxes, "Arms") and string.find(LoweredPart, "arm") then
+							Parts[Indexes and Part.Name or #Parts + 1] = Part
+						elseif table.find(Hitboxes, "Legs") and string.find(LoweredPart, "leg") then
+							Parts[Indexes and Part.Name or #Parts + 1] = Part
+						elseif
+							(table.find(Hitboxes, "Arms") and string.find(LoweredPart, "hand"))
+							or (table.find(Hitboxes, "Legs ") and string.find(LoweredPart, "foot"))
+						then
+							Parts[Indexes and Part.Name or #Parts + 1] = Part
+						end
+					end
+				end
+			end
+			--
+			return Parts
+		end,
+		--
+		GetBoundingVectors = function(Self, Part)
+			local PartCFrame, PartSize = Part.CFrame, Part.Size
+			local X, Y, Z = PartSize.X, PartSize.Y, PartSize.Z
+			return {
+				TBRC = PartCFrame * CFrame.new(X, Y * 1.3, Z),
+				TBLC = PartCFrame * CFrame.new(-X, Y * 1.3, Z),
+				TFRC = PartCFrame * CFrame.new(X, Y * 1.3, -Z),
+				TFLC = PartCFrame * CFrame.new(-X, Y * 1.3, -Z),
+				BBRC = PartCFrame * CFrame.new(X, -Y * 1.6, Z),
+				BBLC = PartCFrame * CFrame.new(-X, -Y * 1.6, Z),
+				BFRC = PartCFrame * CFrame.new(X, -Y * 1.6, -Z),
+				BFLC = PartCFrame * CFrame.new(-X, -Y * 1.6, -Z),
+			}
+		end,
+		--
+		GetBoundingBox = function(Self, RootCFrame, BodyParts)
+			local Size = Vector3.new(0, 0, 0)
+			--
+			for Index, Value in pairs({ "Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg" }) do
+				local Part = BodyParts[Value]
+				local PartSize = (Part and Part.Size or Self.PartSizes[Value])
+				--
+				if Value == "Head" then
+					Size = (Size + Vector3.new(0, PartSize.Y, 0))
+				elseif Value == "Torso" then
+					Size = (Size + Vector3.new(PartSize.X, PartSize.Y, PartSize.Z))
+				elseif Value == "Left Arm" then
+					Size = (Size + Vector3.new(PartSize.X, 0, 0))
+				elseif Value == "Right Arm" then
+					Size = (Size + Vector3.new(PartSize.X, 0, 0))
+				elseif Value == "Left Leg" then
+					Size = (Size + Vector3.new(0, PartSize.Y, 0))
+				elseif Value == "Right Leg" then
+					Size = (Size + Vector3.new(0, PartSize.Y, 0))
+				end
+			end
+			--
+			return (RootCFrame + Vector3.new(0, -0.125, 0)), Size
+		end,
+	}
+end)()
